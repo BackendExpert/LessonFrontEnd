@@ -5,6 +5,7 @@ const HomePage = () => {
     const [file, setFile] = useState(null);
     const [lessons, setLessons] = useState([]);
     const [ErrorMsg, SetError] = useState(false)
+    const [OneLesson, SetOneLesson] = useState([])
 
     const handleFileChange = (event) => {
       setFile(event.target.files[0]);
@@ -55,11 +56,17 @@ const HomePage = () => {
       lessonsPlan: ''
     })
 
-    const headleCreateLessonPlan = (e) =>{
+    const headleCreateLessonPlan = async (e) =>{
         e.preventDefault()
 
         try{
-          console.log(LessonPlan)
+          // console.log(LessonPlan)
+
+          const res = await axios.get(import.meta.env.VITE_APP_API + `/FileUpload/OneLesson/${LessonPlan.lessonsPlan}`)
+          .then(res => {
+            SetOneLesson(res.data.Result)
+          })          
+
         }
         catch(err){
           console.log(err)
@@ -106,7 +113,7 @@ const HomePage = () => {
                 <div className="bg-white rounded-md p-4 shadow-md w-full md:ml-2 md:mt-0 mt-4">
                     <form onSubmit={headleCreateLessonPlan} method="post">
                       <h1 className="font-semibold text-gray-500 mb-2">Select Lesson to Create Lesson Plan</h1>
-                      <select name="" id="" className='w-full bg-gray-200 rounded pl-2 h-12' required onChange={SetLessonPlan({...LessonPlan, lessonsPlan:e.target.value})}>
+                      <select name="" id="" className='w-full bg-gray-200 rounded pl-2 h-12' required onChange={e => SetLessonPlan({...LessonPlan, lessonsPlan:e.target.value})}>
                           <option value="">Select Lesson</option>                          
                           {
                             lessons.map((lesson, index) => {
@@ -121,6 +128,25 @@ const HomePage = () => {
                     </form>
                 </div>
               </dlv>
+              {
+                OneLesson && Object.keys(OneLesson).length > 0
+                ?
+                <div className="bg-white rounded-md p-4 shadow-md w-full md:mt-0 mt-4">
+                    <h1 className="font-semibold text-gray-500">Your Lesson Plan</h1>
+
+                    <div className="">
+                      <span className='font-semibold'>Lesson Title:</span> {OneLesson.title}
+                    </div>
+
+                    <div className="mt-4">
+                      <a href={`/LessonPlan/${OneLesson._id}`} className='bg-blue-500 py-2 px-4 rounded text-white '>
+                        Print the Lesson Plan
+                      </a>
+                    </div>
+                </div>
+              :
+              <div className=""></div>
+              }
             </div>
             <div className="w-1/2"></div>
         </div>
